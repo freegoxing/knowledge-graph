@@ -1,0 +1,35 @@
+{
+  "nodes": [
+    { "id": "1000", "label": "高等数学", "layer": 1 },
+    { "id": "1001", "label": "微分", "layer": 1 },
+    { "id": "1002", "label": "积分", "layer": 1 },
+    { "id": "1003", "label": "极限", "layer": 1 },
+    { "id": "1004", "label": "偏导", "layer": 1 },
+
+
+    { "id": "2000", "label": "线性代数", "layer": 2 },
+    { "id": "2001", "label": "行列式", "layer": 2 },
+    { "id": "2002", "label": "矩阵秩", "layer": 2 },
+    { "id": "2003", "label": "向量空间", "layer": 2 },
+
+    { "id": "3000", "label": "电路分析", "layer": 3 },
+    { "id": "3001", "label": "电路元件", "layer": 3 },
+    { "id": "3002", "label": "电路分析方法", "layer": 3 },
+    { "id": "3003", "label": "三相电路", "layer": 3 }
+  ],
+  "edges": [
+    { "source": "1000", "target": "1001" },
+    { "source": "1000", "target": "1002" },
+    { "source": "1000", "target": "1003" },
+    { "source": "1000", "target": "1004" },
+
+    { "source": "2000", "target": "2001" },
+    { "source": "2000", "target": "2002" },
+    { "source": "2000", "target": "2003" },
+
+    { "source": "3000", "target": "3001" },
+    { "source": "3000", "target": "3002" },
+    { "source": "3000", "target": "3003" },
+    { "source": "3000", "target": "3004" }
+  ]
+}
