@@ -1,0 +1,7 @@
+.context-menu div {
+    padding: 4px 12px;
+    cursor: pointer;
+}
+.context-menu div:hover {
+    background-color: #f0f0f0;
+}

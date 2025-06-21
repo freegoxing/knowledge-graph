@@ -1,0 +1,10 @@
+.context-menu {
+    /* 样式 */
+}
+.context-menu > div {
+    padding: 4px 10px;
+    cursor: pointer;
+}
+.context-menu > div:hover {
+    background-color: #eee;
+}

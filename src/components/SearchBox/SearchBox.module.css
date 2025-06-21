@@ -1,4 +1,4 @@
-.search-box-container {
+.searchBoxContainer {
     position: absolute;
     top: 60px;
     left: 20px;
@@ -6,7 +6,7 @@
     width: 160px;
 }
 
-.search-box {
+.searchBox {
     width: 100%;
     padding: 6px 10px;
     font-size: 14px;
@@ -26,13 +26,12 @@
     font-size: 14px;
 }
 
-.suggestions li {
+.suggestionItem {
     padding: 6px 10px;
     cursor: pointer;
 }
 
-.suggestions li:hover,
-.suggestions li.selected {
+.selected {
     background-color: #007bff;
     color: white;
 }
