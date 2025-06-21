@@ -1,17 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { forceSimulation, forceManyBody, forceLink, forceCenter } from 'd3-force'
-import Node from './components/Node'
-import Edge from './components/Edge'
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react'
+import { useThree } from '@react-three/fiber'
 import DraggableNode from './components/DraggableNode'
-
+import Edge from './components/Edge'
 
 // 计算每层的圆环半径
 const radiusPerLayer = 5;
 
-export default function Graph() {
+const Graph = forwardRef(({ highlightedNodeId }, ref) => {
     const [data, setData] = useState({ nodes: [], edges: [] })
-    // 存储节点实时位置，支持拖拽修改
     const [positions, setPositions] = useState({})
+    const { camera } = useThree()
+
+    useImperativeHandle(ref, () => ({
+        data,
+        positions,
+        camera
+    }))
 
     useEffect(() => {
         fetch('/graph.json')
@@ -47,7 +51,9 @@ export default function Graph() {
                         let cx = 0, cy = 0, cz = 0
                         if (parentPositions.length > 0) {
                             parentPositions.forEach(p => {
-                                cx += p[0]; cy += p[1]; cz += p[2]
+                                cx += p[0];
+                                cy += p[1];
+                                cz += p[2]
                             })
                             cx /= parentPositions.length
                             cy /= parentPositions.length
@@ -86,12 +92,20 @@ export default function Graph() {
         <group>
             {data.nodes.map(node => {
                 const position = positions[node.id] || [0, 0, 0]
+
+                // 计算节点连接数：只算出现次数（可以双向）
+                const degree = data.edges.filter(
+                    e => e.source === node.id || e.target === node.id
+                ).length
+
                 return (
                     <DraggableNode
                         key={node.id}
                         position={position}
                         label={node.label}
                         draggable={true}
+                        highlighted={highlightedNodeId === node.id}
+                        degree={degree}
                         onDrag={(pos) => onDragNode(node.id, pos)}
                     />
                 )
@@ -105,4 +119,6 @@ export default function Graph() {
             })}
         </group>
     )
-}
+})
+
+export default Graph

@@ -3,7 +3,7 @@ import { useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 
-export default function DraggableNode({ id, position, onDrag, label }) {
+export default function DraggableNode({ position, onDrag, label, highlighted, degree = 0 }) {
     const meshRef = useRef()
     const { camera } = useThree()
     const [dragging, setDragging] = useState(false)
@@ -16,13 +16,16 @@ export default function DraggableNode({ id, position, onDrag, label }) {
         event.stopPropagation()
         setDragging(true)
 
+        // 计算拖拽平面，垂直于相机视线，经过当前节点位置
         plane.current.setFromNormalAndCoplanarPoint(
             camera.getWorldDirection(new THREE.Vector3()).negate(),
             meshRef.current.position
         )
 
         raycaster.current.setFromCamera(event.pointer, camera)
-        raycaster.current.ray.intersectPlane(plane.current, intersection)
+        // 注意这里必须传入 intersection.current，而不是 intersection
+        raycaster.current.ray.intersectPlane(plane.current, intersection.current)
+
         setOffset(intersection.current.clone().sub(meshRef.current.position))
     }
 
@@ -31,7 +34,7 @@ export default function DraggableNode({ id, position, onDrag, label }) {
         event.stopPropagation()
 
         raycaster.current.setFromCamera(event.pointer, camera)
-        if (raycaster.current.ray.intersectPlane(plane.current, intersection)) {
+        if (raycaster.current.ray.intersectPlane(plane.current, intersection.current)) {
             const newPos = intersection.current.clone().sub(offset)
             onDrag([newPos.x, newPos.y, newPos.z])
         }
@@ -41,6 +44,12 @@ export default function DraggableNode({ id, position, onDrag, label }) {
         event.stopPropagation()
         setDragging(false)
     }
+
+    // 半径范围 0.2 - 2，随 degree 变化
+    const radius = Math.min(0.2 + degree * 0.05, 2)
+
+    // 透明度，选中时为1，未选中时最低0.3，最高1
+    const opacity = highlighted ? 1 : Math.min(0.3 + degree * 0.05, 1)
 
     return (
         <mesh
@@ -53,12 +62,16 @@ export default function DraggableNode({ id, position, onDrag, label }) {
             castShadow
             receiveShadow
         >
-            <sphereGeometry args={[0.3, 16, 16]} />
-            <meshStandardMaterial color="blue" />
+            <sphereGeometry args={[radius, 16, 16]} />
+            <meshStandardMaterial
+                color={highlighted ? 'hotpink' : 'blue'}
+                transparent={true}
+                opacity={opacity}
+            />
 
-            {/* Html文字显示 */}
+            {/* 球体上方显示标签 */}
             <Html
-                position={[0, 0.5, 0]}  // 球体上方一点
+                position={[0, 0.5, 0]}
                 center
                 style={{
                     pointerEvents: 'none',
@@ -69,6 +82,7 @@ export default function DraggableNode({ id, position, onDrag, label }) {
                     whiteSpace: 'nowrap',
                     borderRadius: '4px',
                 }}
+                occlude={false}
             >
                 {label}
             </Html>
