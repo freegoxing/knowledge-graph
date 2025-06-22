@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 import styles from './ContextMenu.module.css'
 
 export default function ContextMenu({ visible, x, y, nodeId, onClose, onAction }) {
@@ -9,24 +10,15 @@ export default function ContextMenu({ visible, x, y, nodeId, onClose, onAction }
         onClose()
     }
 
-    return (
+    return ReactDOM.createPortal(
         <div
-            className={styles['context-menu']}
-            style={{
-                position: 'absolute',
-                top: y,
-                left: x,
-                background: 'white',
-                border: '1px solid #ccc',
-                borderRadius: '6px',
-                zIndex: 1000,
-                padding: '4px',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
-            }}
+            className={styles.contextMenu}
+            style={{ top: y, left: x }}
         >
-            <div onClick={() => handleClick('add')}>➕ 添加子节点</div>
-            <div onClick={() => handleClick('replace')}>✏️ 替换标签</div>
-            <div onClick={() => handleClick('delete')}>🗑️ 删除节点</div>
-        </div>
+            <div className={styles.menuItem} onClick={() => handleClick('add')}>➕ 添加子节点</div>
+            <div className={styles.menuItem} onClick={() => handleClick('replace')}>✏️ 替换标签</div>
+            <div className={styles.menuItem} onClick={() => handleClick('delete')}>🗑️ 删除节点</div>
+        </div>,
+        document.body
     )
 }

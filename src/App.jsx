@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import Graph from './Graph'
-import SearchBox from './components/SearchBox/SearchBox'
-import ContextMenu from './components/ContextMenu/ContextMenu'
+import Graph from '@/Graph'
+import SearchBox from '@components/SearchBox/SearchBox'
+import ContextMenu from '@components/ContextMenu/ContextMenu'
 
 export default function App() {
     const [searchNodeId, setSearchNodeId] = useState(null)
@@ -32,7 +32,21 @@ export default function App() {
         })
     }
 
+    async function saveGraphData() {
+        const response = await fetch('http://localhost:3001/update-graph', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(graphRef.current.data)
+        })
 
+        if (response.ok) {
+            console.log('✅ 图数据已保存')
+        } else {
+            console.error('❌ 图数据保存失败')
+        }
+    }
 
     const handleAction = (action, nodeId) => {
         const graph = graphRef.current
@@ -44,27 +58,30 @@ export default function App() {
                 if (!parentNode) return
 
                 const nodeName = prompt('请输入新节点名字', '')
-                if (!nodeName) return // 用户取消或没输入就不添加
+                if (!nodeName || !nodeName.trim()) return
 
                 const newId = `node-${Date.now()}`
                 const newNode = {
                     id: newId,
                     label: nodeName,
-                    layer: parentNode.layer  // 同一层
+                    layer: parentNode.layer
                 }
                 graph.data.nodes.push(newNode)
                 graph.data.edges.push({ source: nodeId, target: newId })
 
-                // 重新触发状态更新，确保界面刷新
-                graph.setData && graph.setData({ ...graph.data }) // 如果有setData方法的话
+                saveGraphData()
+                graph.setData && graph.setData({ ...graph.data })
                 break
             }
             case 'replace': {
                 const node = graph.data.nodes.find(n => n.id === nodeId)
                 if (node) {
                     const newLabel = prompt('请输入新的标签', node.label)
-                    if (newLabel !== null) node.label = newLabel
+                    if (newLabel !== null && newLabel.trim() !== '') node.label = newLabel.trim()
                 }
+
+                saveGraphData()
+                graph.setData && graph.setData({ ...graph.data })
                 break
             }
             case 'delete': {
@@ -73,12 +90,16 @@ export default function App() {
                     e => e.source !== nodeId && e.target !== nodeId
                 )
                 delete graph.positions[nodeId]
+
+                saveGraphData()
+                graph.setData && graph.setData({ ...graph.data })
                 break
             }
             default:
                 break
         }
     }
+
 
     const closeMenu = () => setContextMenu(prev => ({ ...prev, visible: false }))
 

@@ -10,12 +10,15 @@
   "dependencies": {
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.13.5",
+    "cors": "^2.8.5",
     "d3-force": "^3.0.0",
+    "express": "^5.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.160.0"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.5.2",
     "vite": "^6.3.5"
   }
 }
