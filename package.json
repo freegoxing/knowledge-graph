@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "vite --config client/vite.config.js",
+    "build": "vite build --config client/vite.config.js",
+    "preview": "vite preview --config client/vite.config.js",
+    "start-server": "node server/server.js",
+    "start-all": "concurrently \"npm run dev\" \"npm run start-server\""
   },
   "dependencies": {
     "@react-three/drei": "^9.122.0",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.5.2",
+    "concurrently": "^9.2.0",
     "vite": "^6.3.5"
   }
 }

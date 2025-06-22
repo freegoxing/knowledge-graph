@@ -10,7 +10,7 @@ const PORT = 3001
 app.use(cors())
 app.use(express.json())
 
-const graphPath = path.join(__dirname, '../public/graph.json')
+const graphPath = path.join(__dirname, './data/graph.json')
 
 // 获取图数据
 app.get('/graph', (req, res) => {
