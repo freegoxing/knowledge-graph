@@ -10,20 +10,23 @@ function calculatePositions(data) {
     const pos = {}
     const layers = {}
 
+    const allLayers = data.nodes.map(n => n.layer)
+    const minLayer = Math.min(...allLayers)
+
     data.nodes.forEach(n => {
-        if (!layers[n.layer]) layers[n.layer] = []
-        layers[n.layer].push(n)
+        n._adjustedLayer = n.layer - minLayer
     })
 
-    // 层0的节点都放中心点
-    layers[0]?.forEach((node) => {
-        pos[node.id] = [0, 0, 0]
+    // 按调整后的层分组
+    data.nodes.forEach(n => {
+        if (!layers[n._adjustedLayer]) layers[n._adjustedLayer] = []
+        layers[n._adjustedLayer].push(n)
     })
 
     // 其他层
     Object.entries(layers).forEach(([layerStr, nodes]) => {
         const layer = Number(layerStr)
-        if (layer === 0) return
+        if (layer === -1) return
         nodes.forEach((node, idxInLayer) => {
             const parentEdges = data.edges.filter(e => e.target === node.id)
             const parentPositions = parentEdges.map(e => pos[e.source]).filter(Boolean)
@@ -39,7 +42,7 @@ function calculatePositions(data) {
             const baseAngle = (idxInLayer / nodes.length) * 2 * Math.PI
             const angle = baseAngle + (Math.random() - 0.5) * (Math.PI / 6)
             const r = radiusPerLayer
-            pos[node.id] = [cx + r * Math.cos(angle), layer * -5, cz + r * Math.sin(angle)]
+            pos[node.id] = [cx + r * Math.cos(angle),  layer * -5, cz + r * Math.sin(angle)]
         })
     })
 

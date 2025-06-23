@@ -53,7 +53,7 @@ export default function App() {
         }
     }
 
-    const handleAction = (action, nodeId) => {
+    const handleAction = async (action, nodeId) => {
         const graph = graphRef.current
         if (!graph || !graph.data || !nodeId) return
 
@@ -74,10 +74,75 @@ export default function App() {
                 graph.data.nodes.push(newNode)
                 graph.data.edges.push({ source: nodeId, target: newId })
 
-                saveGraphData()
+                await saveGraphData()
                 graph.setData && graph.setData({ ...graph.data })
                 break
             }
+
+            case 'add-up': {
+                const childNode = graph.data.nodes.find(n => n.id === nodeId)
+                if (!childNode) return
+
+                const nodeName = prompt('请输入父节点名字', '')
+                if (!nodeName || !nodeName.trim()) return
+
+                const newId = `node-${Date.now()}`
+
+                const originalLayer = childNode.layer
+                const newLayer = Math.max(0, originalLayer - 1) + 1
+
+                // 让所有比这个小的层都 +1
+                graph.data.nodes.forEach(n => {
+                    if (n.layer >= newLayer) {
+                        n.layer += 1
+                    }
+                })
+
+                const newNode = {
+                    id: newId,
+                    label: nodeName.trim(),
+                    layer: newLayer
+                }
+
+                graph.data.nodes.push(newNode)
+
+                await saveGraphData()
+                graph.setData && graph.setData({ ...graph.data })
+                break
+            }
+
+            case 'add-down': {
+                const parentNode = graph.data.nodes.find(n => n.id === nodeId)
+                if (!parentNode) return
+
+                const nodeName = prompt('请输入子节点名字', '')
+                if (!nodeName || !nodeName.trim()) return
+
+                const newId = `node-${Date.now()}`
+
+                const originalLayer = parentNode.layer
+                const newLayer = originalLayer + 1
+
+                // 所有层 >= newLayer 的节点层数 +1，腾出新节点层位置
+                graph.data.nodes.forEach(n => {
+                    if (n.layer >= newLayer) {
+                        n.layer += 1
+                    }
+                })
+
+                const newNode = {
+                    id: newId,
+                    label: nodeName.trim(),
+                    layer: newLayer
+                }
+
+                graph.data.nodes.push(newNode)
+
+                await saveGraphData()
+                graph.setData && graph.setData({ ...graph.data })
+                break
+            }
+
             case 'replace': {
                 const node = graph.data.nodes.find(n => n.id === nodeId)
                 if (node) {
@@ -85,21 +150,42 @@ export default function App() {
                     if (newLabel !== null && newLabel.trim() !== '') node.label = newLabel.trim()
                 }
 
-                saveGraphData()
+                await saveGraphData()
                 graph.setData && graph.setData({ ...graph.data })
                 break
             }
+
             case 'delete': {
+                const targetNode = graph.data.nodes.find(n => n.id === nodeId)
+                if (!targetNode) break
+
+                const deletedLayer = targetNode.layer
+
                 graph.data.nodes = graph.data.nodes.filter(n => n.id !== nodeId)
+
                 graph.data.edges = graph.data.edges.filter(
                     e => e.source !== nodeId && e.target !== nodeId
                 )
+
                 delete graph.positions[nodeId]
 
-                saveGraphData()
+                // 检查被删除的那一层是否还有节点
+                const layerStillExists = graph.data.nodes.some(n => n.layer === deletedLayer)
+
+                // 如果该层已经没有节点，则整体调整更高层
+                if (!layerStillExists) {
+                    graph.data.nodes.forEach(n => {
+                        if (n.layer > deletedLayer) {
+                            n.layer -= 1
+                        }
+                    })
+                }
+
+                await saveGraphData()
                 graph.setData && graph.setData({ ...graph.data })
                 break
             }
+
             default:
                 break
         }
