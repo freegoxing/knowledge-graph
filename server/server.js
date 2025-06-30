@@ -2,6 +2,7 @@ const express = require('express')
 const fs = require('fs')
 const path = require('path')
 const cors = require('cors')
+const cozeRoutes = require('./routes/coze')
 
 const app = express()
 const PORT = 3001
@@ -33,6 +34,9 @@ app.post('/update-graph', (req, res) => {
         res.send('保存成功')
     })
 })
+
+// 挂载 /api/graph 路由
+app.use('/', cozeRoutes)
 
 app.listen(PORT, () => {
     console.log(`✅ 图数据服务已启动：http://localhost:${PORT}`)

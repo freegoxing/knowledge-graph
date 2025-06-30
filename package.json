@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.13.5",
+    "axios": "^1.10.0",
     "cors": "^2.8.5",
     "d3-force": "^3.0.0",
     "express": "^5.1.0",

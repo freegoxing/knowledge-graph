@@ -132,7 +132,12 @@ function applyForces(data, positions, iterations = 100) {
 }
 
 
-const Graph = forwardRef(({ highlightedNodeId, onRightClick, onDragStateChange }, ref) => {
+const Graph = forwardRef(({
+                              highlightedNodeId,
+                              onRightClick,
+                              onDragStateChange,
+                              query
+                          }, ref) => {
     const [data, setData] = useState({ nodes: [], edges: [] })
     const [positions, setPositions] = useState({})
     const [isDragging, setIsDragging] = useState(false)
@@ -151,19 +156,6 @@ const Graph = forwardRef(({ highlightedNodeId, onRightClick, onDragStateChange }
             setPositions(finalPos)
         },
     }))
-
-    useEffect(() => {
-        fetch('http://localhost:3001/graph')
-            .then(res => res.json())
-            .then(json => {
-                setData(json)
-                const initPos = calculatePositions(json)
-                const finalPos = applyForces(json, initPos, 100)
-                setPositions(finalPos)
-            })
-            .catch(err => console.error('加载graph.json失败', err))
-    }, [])
-
 
     const onDragNode = (id, newPos) => {
         onDragStart()
@@ -197,6 +189,27 @@ const Graph = forwardRef(({ highlightedNodeId, onRightClick, onDragStateChange }
             })
         }
     }
+
+    // useEffect(() => {
+    //     if (!query) return;
+    //     console.log('query =', query)
+    //
+    //     fetch('http://localhost:3001/api/graph', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({ query })
+    //     })
+    //         .then(res => res.json())
+    //         .then(json => {
+    //             setData(json)
+    //             const initPos = calculatePositions(json)
+    //             const finalPos = applyForces(json, initPos, 100)
+    //             setPositions(finalPos)
+    //         })
+    //         .catch(err => console.error('加载graph.json失败', err))
+    // }, [query]) // ✅ 添加 query 作为依赖
 
     return (
         <group>

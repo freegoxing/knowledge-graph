@@ -1,0 +1,43 @@
+.queryBox {
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.queryBox input {
+    padding: 0.5rem;
+    width: 60%;
+    margin-right: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.queryBox button {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #0077cc;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.queryBox button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+}
+
+.response {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #eee;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.error {
+    color: red;
+    margin-top: 1rem;
+}

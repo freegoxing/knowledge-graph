@@ -4,12 +4,14 @@ import { OrbitControls } from '@react-three/drei'
 import Graph from '@/Graph'
 import SearchBox from '@components/SearchBox/SearchBox'
 import ContextMenu from '@components/ContextMenu/ContextMenu'
+import QueryBox from "@components/QueryBox/QueryBox";
 
 export default function App() {
     const [searchNodeId, setSearchNodeId] = useState(null)
     const [graphReady, setGraphReady] = useState(false)
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, nodeId: null })
     const [isDragging, setIsDragging] = useState(false)
+    const [query, setQuery] = useState('')
     const graphRef = useRef()
 
     useEffect(() => {
@@ -204,6 +206,32 @@ export default function App() {
 
     return (
         <>
+            <QueryBox
+                onSubmit={setQuery}
+                onResult={(data) => {
+                    const graph = graphRef.current;
+                    if (!graph || !graph.data) return;
+
+                    if (data.nodes && data.edges) {
+                        // 1. 合并 nodes，避免重复 id
+                        const existingIds = new Set(graph.data.nodes.map(n => n.id));
+                        const newNodes = data.nodes.filter(n => !existingIds.has(n.id));
+                        graph.data.nodes.push(...newNodes);
+
+                        // 2. 合并 edges
+                        graph.data.edges.push(...data.edges);
+
+                        // 3. 调整 layout 或 layer（可选）
+
+                        // 4. 重新触发渲染
+                        graph.setData && graph.setData({ ...graph.data });
+
+                        // 5. 可选：保存数据
+                        saveGraphData();
+                    }
+                }}
+            />
+
             {graphReady && (
                 <SearchBox
                     data={graphRef.current?.data}
@@ -219,6 +247,7 @@ export default function App() {
                 <OrbitControls enabled={!isDragging}/>
                 <Graph
                     ref={graphRef}
+                    query={query}
                     highlightedNodeId={searchNodeId}
                     onRightClick={handleRightClick}
                     onDragStateChange={handleDragStateChange}

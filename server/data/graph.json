@@ -1,253 +1,122 @@
 {
   "nodes": [
     {
-      "id": "1000",
+      "id": 1,
       "label": "高等数学",
-      "layer": 4,
-      "position": [
-        2.7402395700446687,
-        -20,
-        0.39514762555308564
-      ],
+      "layer": 1,
       "_adjustedLayer": 0
     },
     {
-      "id": "1001",
-      "label": "微分",
-      "layer": 4,
-      "position": [
-        9.75549405282198,
-        -20,
-        5.9448135399607835
-      ],
-      "_adjustedLayer": 0
-    },
-    {
-      "id": "1002",
-      "label": "积分",
-      "layer": 4,
-      "position": [
-        -0.36891791940271373,
-        -20,
-        8.72604426506757
-      ],
-      "_adjustedLayer": 0
-    },
-    {
-      "id": "1003",
-      "label": "极限",
-      "layer": 4,
-      "position": [
-        -6.103368117542167,
-        -20,
-        1.1776791155711805
-      ],
-      "_adjustedLayer": 0
-    },
-    {
-      "id": "1004",
-      "label": "偏导",
-      "layer": 4,
-      "position": [
-        -1.1154393632212483,
-        -20,
-        -7.64208979083769
-      ],
-      "_adjustedLayer": 0
-    },
-    {
-      "id": "2000",
+      "id": 2,
       "label": "线性代数",
-      "layer": 5,
-      "position": [
-        3.2537905276906427,
-        -25,
-        -0.6275092053259888
-      ],
-      "_adjustedLayer": 1
-    },
-    {
-      "id": "2001",
-      "label": "行列式",
-      "layer": 5,
-      "position": [
-        4.3454541333190795,
-        -25,
-        6.586109653473598
-      ],
-      "_adjustedLayer": 1
-    },
-    {
-      "id": "2002",
-      "label": "矩阵秩",
-      "layer": 5,
-      "position": [
-        -4.338832088956857,
-        -25,
-        -1.058972017032894
-      ],
-      "_adjustedLayer": 1
-    },
-    {
-      "id": "2003",
-      "label": "向量空间",
-      "layer": 5,
-      "position": [
-        5.065756353492666,
-        -25,
-        -7.695506851973933
-      ],
-      "_adjustedLayer": 1
-    },
-    {
-      "id": "3000",
-      "label": "电路分析",
-      "layer": 6,
-      "position": [
-        3.7705137455916518,
-        -30,
-        2.2623938401920287
-      ],
-      "_adjustedLayer": 3
-    },
-    {
-      "id": "3001",
-      "label": "电路元件",
-      "layer": 6,
-      "position": [
-        11.971618380741804,
-        -30,
-        4.421865557511319
-      ],
-      "_adjustedLayer": 3
-    },
-    {
-      "id": "3002",
-      "label": "电路分析方法",
-      "layer": 6,
-      "position": [
-        3.454588039262894,
-        -30,
-        9.89036323427253
-      ],
-      "_adjustedLayer": 3
-    },
-    {
-      "id": "3003",
-      "label": "三相电路",
-      "layer": 6,
-      "position": [
-        -4.639005940558335,
-        -30,
-        5.57184018131807
-      ],
-      "_adjustedLayer": 3
-    },
-    {
-      "id": "node-1750575621381",
-      "label": "动态元件",
-      "layer": 6,
-      "position": [
-        -1.7736133938063758,
-        -30,
-        -4.8020795948801664
-      ],
-      "_adjustedLayer": 3
-    },
-    {
-      "id": "node-1750585836412",
-      "label": "电容",
-      "layer": 6,
-      "position": [
-        -5.8444691125477926,
-        -30,
-        -10.537747744085491
-      ],
-      "_adjustedLayer": 3
-    },
-    {
-      "id": "node-1750585845116",
-      "label": "电感",
-      "layer": 6,
-      "position": [
-        4.550747643009243,
-        -30,
-        -9.919407615600033
-      ],
-      "_adjustedLayer": 3
-    },
-    {
-      "id": "node-1750638471829",
-      "label": "重积分",
-      "layer": 4,
-      "position": [
-        9.415827907355503,
-        -20,
-        -5.587840409664525
-      ],
+      "layer": 1,
       "_adjustedLayer": 0
+    },
+    {
+      "id": 3,
+      "label": "概率统计",
+      "layer": 1,
+      "_adjustedLayer": 0
+    },
+    {
+      "id": 4,
+      "label": "电路分析",
+      "layer": 2,
+      "_adjustedLayer": 1
+    },
+    {
+      "id": 5,
+      "label": "模拟电子技术",
+      "layer": 2,
+      "_adjustedLayer": 1
+    },
+    {
+      "id": 6,
+      "label": "数字电子技术",
+      "layer": 2,
+      "_adjustedLayer": 1
+    },
+    {
+      "id": 7,
+      "label": "信号与系统",
+      "layer": 3,
+      "_adjustedLayer": 2
+    },
+    {
+      "id": 8,
+      "label": "通信原理",
+      "layer": 3,
+      "_adjustedLayer": 2
+    },
+    {
+      "id": 9,
+      "label": "数字信号处理",
+      "layer": 3,
+      "_adjustedLayer": 2
+    },
+    {
+      "id": 10,
+      "label": "移动通信",
+      "layer": 4,
+      "_adjustedLayer": 3
+    },
+    {
+      "id": 11,
+      "label": "光纤通信",
+      "layer": 4,
+      "_adjustedLayer": 3
+    },
+    {
+      "id": 12,
+      "label": "无线通信",
+      "layer": 4,
+      "_adjustedLayer": 3
+    },
+    {
+      "id": 13,
+      "label": "通信系统设计",
+      "layer": 5,
+      "_adjustedLayer": 4
+    },
+    {
+      "id": 14,
+      "label": "毕业设计",
+      "layer": 5,
+      "_adjustedLayer": 4
     }
   ],
   "edges": [
     {
-      "source": "1000",
-      "target": "1001"
+      "source": 1,
+      "target": 2
     },
     {
-      "source": "1000",
-      "target": "1002"
+      "source": 2,
+      "target": 3
     },
     {
-      "source": "1000",
-      "target": "1003"
+      "source": 4,
+      "target": 5
     },
     {
-      "source": "1000",
-      "target": "1004"
+      "source": 5,
+      "target": 6
     },
     {
-      "source": "2000",
-      "target": "2001"
+      "source": 7,
+      "target": 8
     },
     {
-      "source": "2000",
-      "target": "2002"
+      "source": 8,
+      "target": 9
     },
     {
-      "source": "2000",
-      "target": "2003"
+      "source": 10,
+      "target": 11
     },
     {
-      "source": "3000",
-      "target": "3001"
-    },
-    {
-      "source": "3000",
-      "target": "3002"
-    },
-    {
-      "source": "3000",
-      "target": "3003"
-    },
-    {
-      "source": "3000",
-      "target": "3004"
-    },
-    {
-      "source": "3000",
-      "target": "node-1750575621381"
-    },
-    {
-      "source": "node-1750575621381",
-      "target": "node-1750585836412"
-    },
-    {
-      "source": "node-1750575621381",
-      "target": "node-1750585845116"
-    },
-    {
-      "source": "1000",
-      "target": "node-1750638471829"
+      "source": 11,
+      "target": 12
     }
   ]
 }
