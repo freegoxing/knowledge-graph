@@ -50,85 +50,110 @@ function calculatePositions(data) {
 }
 
 // 计算力向导布局
-function applyForces(data, positions, iterations = 100) {
-    const K_REPEL = 20     // 斥力常数
-    const K_ATTRACT = 0.4 // 弹簧吸引力常数
-    const K_CENTER = 0.1  // 向心力常数
-    const STEP_SIZE = 0.01
+function applyForces(data, positions, maxIterations = 200, energyThreshold = 0.01) {
+    const K_REPEL = 20;     // 斥力常数
+    const K_ATTRACT = 0.2; // 弹簧吸引力常数
+    const K_CENTER = 0.05;  // 向心力常数
 
-    const newPositions = { ...positions }
+    const newPositions = JSON.parse(JSON.stringify(positions)); // Deep copy
 
-    for (let iter = 0; iter < iterations; iter++) {
-        const forces = {}
+    // 预处理，创建节点ID到节点的映射
+    const nodeMap = new Map(data.nodes.map(node => [node.id, node]));
+
+    for (let iter = 0; iter < maxIterations; iter++) {
+        let totalEnergy = 0;
+        const forces = {};
 
         data.nodes.forEach(n => {
-            forces[n.id] = [0, 0]
-        })
+            forces[n.id] = { x: 0, z: 0 };
+        });
 
-        // 计算斥力
+        // 计算斥力 (O(N^2))
         for (let i = 0; i < data.nodes.length; i++) {
-            const ni = data.nodes[i]
-            const pi = newPositions[ni.id]
             for (let j = i + 1; j < data.nodes.length; j++) {
-                const nj = data.nodes[j]
-                if (ni.layer !== nj.layer) continue // 不同层跳过
-                const pj = newPositions[nj.id]
+                const ni = data.nodes[i];
+                const nj = data.nodes[j];
 
-                const dx = pi[0] - pj[0]
-                const dz = pi[2] - pj[2]
-                const distSq = dx * dx + dz * dz + 0.01 // 避免除0
-                const force = K_REPEL / distSq
+                // 仅在同一层内计算斥力
+                if (ni.layer !== nj.layer) continue;
 
-                const fx = force * dx
-                const fz = force * dz
+                const pi = newPositions[ni.id];
+                const pj = newPositions[nj.id];
 
-                forces[ni.id][0] += fx
-                forces[ni.id][1] += fz
-                forces[nj.id][0] -= fx
-                forces[nj.id][1] -= fz
+                const dx = pi[0] - pj[0];
+                const dz = pi[2] - pj[2];
+                const distSq = dx * dx + dz * dz + 0.01; // 避免除0
+                const dist = Math.sqrt(distSq);
+                const force = K_REPEL / distSq;
+
+                const fx = force * (dx / dist);
+                const fz = force * (dz / dist);
+
+                forces[ni.id].x += fx;
+                forces[ni.id].z += fz;
+                forces[nj.id].x -= fx;
+                forces[nj.id].z -= fz;
             }
         }
 
-        // 向心力
-        data.nodes.forEach(n => {
-            const pos = newPositions[n.id]
-            const fx = -K_CENTER * pos[0]
-            const fz = -K_CENTER * pos[2]
-            forces[n.id][0] += fx
-            forces[n.id][1] += fz
-        })
-
-        // 相邻吸引力（弹簧力）
+        // 计算吸引力 (弹簧力)
         data.edges.forEach(edge => {
-            const source = newPositions[edge.source]
-            const target = newPositions[edge.target]
-            const sNode = data.nodes.find(n => n.id === edge.source)
-            const tNode = data.nodes.find(n => n.id === edge.target)
+            const sourceNode = nodeMap.get(edge.source);
+            const targetNode = nodeMap.get(edge.target);
 
-            if (!source || !target || sNode.layer !== tNode.layer) return
+            if (!sourceNode || !targetNode) return;
 
-            const dx = target[0] - source[0]
-            const dz = target[2] - source[2]
+            const sourcePos = newPositions[edge.source];
+            const targetPos = newPositions[edge.target];
 
-            const fx = K_ATTRACT * dx
-            const fz = K_ATTRACT * dz
+            const dx = targetPos[0] - sourcePos[0];
+            const dz = targetPos[2] - sourcePos[2];
+            const dist = Math.sqrt(dx * dx + dz * dz) + 0.01;
 
-            forces[edge.source][0] += fx
-            forces[edge.source][1] += fz
-            forces[edge.target][0] -= fx
-            forces[edge.target][1] -= fz
-        })
+            // 胡克定律 F = k * x
+            const force = K_ATTRACT * dist;
 
-        // 应用力更新位置（仅 x 和 z 方向）
+            const fx = force * (dx / dist);
+            const fz = force * (dz / dist);
+
+            forces[edge.source].x += fx;
+            forces[edge.source].z += fz;
+            forces[edge.target].x -= fx;
+            forces[edge.target].z -= fz;
+        });
+
+        // 计算向心力
         data.nodes.forEach(n => {
-            const pos = newPositions[n.id]
-            const force = forces[n.id]
-            pos[0] += force[0] * STEP_SIZE
-            pos[2] += force[1] * STEP_SIZE
-        })
+            const pos = newPositions[n.id];
+            forces[n.id].x -= K_CENTER * pos[0];
+            forces[n.id].z -= K_CENTER * pos[2];
+        });
+
+        // 模拟退火：步长（alpha）随迭代次数减小
+        const alpha = 1.0 - (iter / maxIterations);
+
+        // 更新位置并计算总能量
+        data.nodes.forEach(n => {
+            const pos = newPositions[n.id];
+            const force = forces[n.id];
+
+            const displacementX = force.x * alpha * 0.1; // 调整步长因子
+            const displacementZ = force.z * alpha * 0.1;
+
+            pos[0] += displacementX;
+            pos[2] += displacementZ;
+
+            totalEnergy += displacementX * displacementX + displacementZ * displacementZ;
+        });
+
+        // 如果系统能量低于阈值，则认为布局稳定，提前退出
+        if (totalEnergy < energyThreshold) {
+            // console.log(`布局稳定于第 ${iter} 次迭代`);
+            break;
+        }
     }
 
-    return newPositions
+    return newPositions;
 }
 
 
@@ -152,7 +177,7 @@ const Graph = forwardRef(({
         setData: (newData) => {
             setData(newData)
             const initPos = calculatePositions(newData)
-            const finalPos = applyForces(newData, initPos, 100)
+            const finalPos = applyForces(newData, initPos, 300)
             setPositions(finalPos)
         },
     }))
@@ -174,21 +199,14 @@ const Graph = forwardRef(({
 
     const onDragEnd = () => {
         if (isDragging) {
-            setIsDragging(false)
-            onDragStateChange && onDragStateChange(false)
+            setIsDragging(false);
+            onDragStateChange && onDragStateChange(false);
 
-            // 同步更新节点的位置信息，注意保留y坐标不变
-            setData(prevData => {
-                const newNodes = prevData.nodes.map(n => {
-                    if (positions[n.id]) {
-                        return { ...n, position: positions[n.id] }
-                    }
-                    return n
-                })
-                return { ...prevData, nodes: newNodes }
-            })
+            // 以当前位置为起点，重新进行力导向计算
+            const finalPos = applyForces(data, positions, 50); // 使用较少的迭代次数进行微调
+            setPositions(finalPos);
         }
-    }
+    };
 
     useEffect(() => {
         fetch('http://localhost:3001/graph')
@@ -196,7 +214,7 @@ const Graph = forwardRef(({
             .then(json => {
                 setData(json)
                 const initPos = calculatePositions(json)
-                const finalPos = applyForces(json, initPos, 100)
+                const finalPos = applyForces(json, initPos, 300)
                 setPositions(finalPos)
             })
             .catch(err => console.error('加载graph.json失败', err))
