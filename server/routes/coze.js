@@ -8,13 +8,13 @@ const BOT_ID = '7511694377740402740'
 // 处理 Coze 响应格式
 function handleResult(message) {
     try {
-        let content = message.content?.trim()
+        const content = message.content?.trim()
 
         const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
         if (codeBlockMatch) {
             content = codeBlockMatch[1];  // 提取中间 JSON 字符串
         }
-
+        
         // 优先尝试作为完整 JSON 对象解析（如 type 为 "answer" 时）
         try {
             const parsed = JSON.parse(content)
@@ -38,7 +38,7 @@ function handleResult(message) {
 }
 
 
-router.post('/api/graph', async (req, res) => {
+router.post('/graph', async (req, res) => {
     const userQuery = req.body.query
 
     const prompt = `

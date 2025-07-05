@@ -5,14 +5,12 @@ import { Html } from '@react-three/drei'
 import styles from './DraggableNode.module.css'
 import * as THREE from 'three'
 
-export default function DraggableNode({
-                                          id,
+export default function DraggableNode({                                          id,
                                           position,
                                           onDrag,
                                           onRightClick,
                                           onDragEnd,
                                           onDragStart,
-                                          onDragStateChange,
                                           label,
                                           highlighted,
                                           degree = 0
@@ -20,7 +18,7 @@ export default function DraggableNode({
     const meshRef = useRef()
     const { camera } = useThree()
     const [dragging, setDragging] = useState(false)
-    const [offset, setOffset] = useState(new THREE.Vector3())
+    const offset = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane())
     const intersection = useRef(new THREE.Vector3())
     const raycaster = useRef(new THREE.Raycaster())
@@ -29,8 +27,6 @@ export default function DraggableNode({
         event.stopPropagation()
         setDragging(true)
         onDragStart && onDragStart()
-        onDragStateChange && onDragStateChange(true)
-
 
         // 计算拖拽平面，垂直于相机视线，经过当前节点位置
         plane.current.setFromNormalAndCoplanarPoint(
@@ -40,7 +36,7 @@ export default function DraggableNode({
 
         raycaster.current.setFromCamera(event.pointer, camera)
         raycaster.current.ray.intersectPlane(plane.current, intersection.current)
-        setOffset(intersection.current.clone().sub(meshRef.current.position))
+        offset.current.copy(intersection.current).sub(meshRef.current.position)
     }
 
     const pointerMove = (event) => {
@@ -49,7 +45,7 @@ export default function DraggableNode({
 
         raycaster.current.setFromCamera(event.pointer, camera)
         if (raycaster.current.ray.intersectPlane(plane.current, intersection.current)) {
-            const newPos = intersection.current.clone().sub(offset)
+            const newPos = intersection.current.clone().sub(offset.current)
             newPos.y = position[1] // 限制在当前层移动
             onDrag([newPos.x, newPos.y, newPos.z])
         }
@@ -57,8 +53,10 @@ export default function DraggableNode({
 
     const pointerUp = (event) => {
         event.stopPropagation()
-        setDragging(false)
-        onDragEnd && onDragEnd()
+        if (dragging) {
+            setDragging(false)
+            onDragEnd && onDragEnd()
+        }
     }
 
     // 鼠标右键事件
@@ -77,8 +75,15 @@ export default function DraggableNode({
     }
 
 
-    const radius = Math.min(0.2 + degree * 0.02, 2)
-    const opacity = highlighted ? 1 : Math.min(0.25 + degree * 0.05, 1)
+    const maxDegree = 50; // 假设一个最大的度，用于归一化
+    const normalizedDegree = Math.min(degree / maxDegree, 1);
+
+    const radius = 0.2 + normalizedDegree * 1.8;
+    const colorLightness = 70 - normalizedDegree * 50; // Lightness from 70% down to 20%
+    const nodeColor = highlighted ? 'hotpink' : `hsl(240, 100%, ${colorLightness}%)`;
+    const labelFontSize = 14 + normalizedDegree * 36;
+    const labelYOffset = radius + 0.2;
+
 
     useFrame(() => {
         if (meshRef.current) {
@@ -88,12 +93,8 @@ export default function DraggableNode({
 
     // 组件内
     useEffect(() => {
-        function onPointerUpGlobal() {
-            if (dragging) {
-                setDragging(false)
-                onDragEnd && onDragEnd()
-                onDragStateChange && onDragStateChange(false)
-            }
+        function onPointerUpGlobal(event) {
+            pointerUp(event)
         }
         window.addEventListener('pointerup', onPointerUpGlobal)
         window.addEventListener('pointercancel', onPointerUpGlobal)
@@ -102,7 +103,7 @@ export default function DraggableNode({
             window.removeEventListener('pointerup', onPointerUpGlobal)
             window.removeEventListener('pointercancel', onPointerUpGlobal)
         }
-    }, [dragging, onDragEnd, onDragStateChange])
+    }, [dragging, onDragEnd])
 
     return (
         <mesh
@@ -119,20 +120,22 @@ export default function DraggableNode({
             castShadow
             receiveShadow
         >
-            <sphereGeometry args={[radius, 16, 16]} />
+            <sphereGeometry args={[radius, 32, 32]} />
             <meshStandardMaterial
-                color={highlighted ? 'hotpink' : 'blue'}
+                color={nodeColor}
                 transparent={true}
-                opacity={opacity}
+                opacity={highlighted ? 1 : 0.75}
             />
 
             <Html
-                position={[0, 0.5, 0]}
+                position={[0, labelYOffset, 0]}
                 center
                 className={styles.graphLabel}
                 occlude={false}
             >
-                {label}
+                <div style={{ fontSize: `${labelFontSize}px` }}>
+                    {label}
+                </div>
             </Html>
         </mesh>
     )

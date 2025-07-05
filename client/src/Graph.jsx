@@ -169,6 +169,20 @@ const Graph = forwardRef(({
 
     const { camera } = useThree()
 
+    useEffect(() => {
+        fetch('/api/graph')
+            .then(res => res.json())
+            .then(initialData => {
+                if (initialData && initialData.nodes && initialData.edges) {
+                    setData(initialData)
+                    const initPos = calculatePositions(initialData)
+                    const finalPos = applyForces(initialData, initPos, 300)
+                    setPositions(finalPos)
+                }
+            })
+            .catch(err => console.error('加载graph.json失败', err))
+    }, [])
+
     useImperativeHandle(ref, () => ({
         data,
         positions,
@@ -183,7 +197,6 @@ const Graph = forwardRef(({
     }))
 
     const onDragNode = (id, newPos) => {
-        onDragStart()
         setPositions((prev) => ({
             ...prev,
             [id]: newPos
@@ -196,7 +209,6 @@ const Graph = forwardRef(({
             onDragStateChange && onDragStateChange(true)
         }
     }
-
     const onDragEnd = () => {
         if (isDragging) {
             setIsDragging(false);
@@ -208,18 +220,6 @@ const Graph = forwardRef(({
         }
     };
 
-    useEffect(() => {
-        fetch('http://localhost:3001/graph')
-            .then(res => res.json())
-            .then(json => {
-                setData(json)
-                const initPos = calculatePositions(json)
-                const finalPos = applyForces(json, initPos, 300)
-                setPositions(finalPos)
-            })
-            .catch(err => console.error('加载graph.json失败', err))
-    }, [query]) // ✅ 添加 query 作为依赖
-
     return (
         <group>
             {data.nodes.map((node) => {
@@ -229,7 +229,7 @@ const Graph = forwardRef(({
                 ).length
 
                 return (
-                    <DraggableNode
+                     <DraggableNode
                         key={node.id}
                         id={node.id}
                         position={position}
@@ -237,6 +237,7 @@ const Graph = forwardRef(({
                         highlighted={highlightedNodeId === node.id}
                         degree={degree}
                         onDrag={(pos) => onDragNode(node.id, pos)}
+                        onDragStart={onDragStart}
                         onRightClick={(e) => onRightClick(e, node.id)}
                         onDragEnd={onDragEnd}
                     />
@@ -247,7 +248,16 @@ const Graph = forwardRef(({
                 const from = positions[edge.source]
                 const to = positions[edge.target]
                 if (!from || !to) return null
-                return <Edge key={i} start={from} end={to} />
+
+                const sourceNode = data.nodes.find(n => n.id === edge.source)
+                const targetNode = data.nodes.find(n => n.id === edge.target)
+                if (!sourceNode || !targetNode) return null
+
+                const sourceDegree = data.edges.filter(e => e.source === sourceNode.id || e.target === sourceNode.id).length;
+                const targetDegree = data.edges.filter(e => e.source === targetNode.id || e.target === targetNode.id).length;
+
+
+                return <Edge key={`${edge.source}-${edge.target}`} start={from} end={to} sourceDegree={sourceDegree} targetDegree={targetDegree}/>
             })}
         </group>
     )

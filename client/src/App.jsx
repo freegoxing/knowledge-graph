@@ -40,7 +40,7 @@ export default function App() {
     }
 
     async function saveGraphData() {
-        const response = await fetch('http://localhost:3001/update-graph', {
+        const response = await fetch('/update-graph', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -76,7 +76,7 @@ export default function App() {
                 graph.data.nodes.push(newNode)
                 graph.data.edges.push({ source: nodeId, target: newId })
 
-                await saveGraphData()
+                // await saveGraphData()
                 graph.setData && graph.setData({ ...graph.data })
                 break
             }
@@ -108,7 +108,7 @@ export default function App() {
 
                 graph.data.nodes.push(newNode)
 
-                await saveGraphData()
+                // await saveGraphData()
                 graph.setData && graph.setData({ ...graph.data })
                 break
             }
@@ -140,7 +140,7 @@ export default function App() {
 
                 graph.data.nodes.push(newNode)
 
-                await saveGraphData()
+                // await saveGraphData()
                 graph.setData && graph.setData({ ...graph.data })
                 break
             }
@@ -152,7 +152,7 @@ export default function App() {
                     if (newLabel !== null && newLabel.trim() !== '') node.label = newLabel.trim()
                 }
 
-                await saveGraphData()
+                // await saveGraphData()
                 graph.setData && graph.setData({ ...graph.data })
                 break
             }
@@ -183,7 +183,7 @@ export default function App() {
                     })
                 }
 
-                await saveGraphData()
+                // await saveGraphData()
                 graph.setData && graph.setData({ ...graph.data })
                 break
             }
@@ -206,31 +206,31 @@ export default function App() {
 
     return (
         <>
-            {/*<QueryBox*/}
-            {/*    onSubmit={setQuery}*/}
-            {/*    onResult={(data) => {*/}
-            {/*        const graph = graphRef.current;*/}
-            {/*        if (!graph || !graph.data) return;*/}
+            <QueryBox
+                onSubmit={setQuery}
+                onResult={(data) => {
+                    const graph = graphRef.current;
+                    if (!graph || !graph.data) return;
 
-            {/*        if (data.nodes && data.edges) {*/}
-            {/*            // 1. 合并 nodes，避免重复 id*/}
-            {/*            const existingIds = new Set(graph.data.nodes.map(n => n.id));*/}
-            {/*            const newNodes = data.nodes.filter(n => !existingIds.has(n.id));*/}
-            {/*            graph.data.nodes.push(...newNodes);*/}
+                    if (data.nodes && data.edges) {
+                        // 1. 合并 nodes，避免重复 id
+                        const existingIds = new Set(graph.data.nodes.map(n => n.id));
+                        const newNodes = data.nodes.filter(n => !existingIds.has(n.id));
+                        graph.data.nodes.push(...newNodes);
 
-            {/*            // 2. 合并 edges*/}
-            {/*            graph.data.edges.push(...data.edges);*/}
+                        // 2. 合并 edges
+                        graph.data.edges.push(...data.edges);
 
-            {/*            // 3. 调整 layout 或 layer（可选）*/}
+                        // 3. 调整 layout 或 layer（可选）
 
-            {/*            // 4. 重新触发渲染*/}
-            {/*            graph.setData && graph.setData({ ...graph.data });*/}
+                        // 4. 重新触发渲染
+                        graph.setData && graph.setData({ ...graph.data });
 
-            {/*            // 5. 可选：保存数据*/}
-            {/*            saveGraphData();*/}
-            {/*        }*/}
-            {/*    }}*/}
-            {/*/>*/}
+                        // 5. 可选：保存数据
+                        // saveGraphData();
+                    }
+                }}
+            />
 
             {graphReady && (
                 <SearchBox

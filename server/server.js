@@ -14,7 +14,7 @@ app.use(express.json())
 const graphPath = path.join(__dirname, './data/graph.json')
 
 // 获取图数据
-app.get('/graph', (req, res) => {
+app.get('/api/graph', (req, res) => {
     fs.readFile(graphPath, 'utf8', (err, data) => {
         if (err) {
             console.error('读取图数据失败:', err)
@@ -25,7 +25,7 @@ app.get('/graph', (req, res) => {
 })
 
 // 更新图数据
-app.post('/update-graph', (req, res) => {
+app.post('/api/update-graph', (req, res) => {
     fs.writeFile(graphPath, JSON.stringify(req.body, null, 2), 'utf8', (err) => {
         if (err) {
             console.error('保存图数据失败:', err)
@@ -35,8 +35,8 @@ app.post('/update-graph', (req, res) => {
     })
 })
 
-// 挂载 /api/graph 路由
-app.use('/', cozeRoutes)
+// 挂载 /api/coze 路由
+app.use('/api/coze', cozeRoutes)
 
 app.listen(PORT, () => {
     console.log(`✅ 图数据服务已启动：http://localhost:${PORT}`)
