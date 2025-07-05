@@ -166,10 +166,12 @@ const Graph = forwardRef(({
     const [data, setData] = useState({ nodes: [], edges: [] })
     const [positions, setPositions] = useState({})
     const [isDragging, setIsDragging] = useState(false)
+    const [loading, setLoading] = useState(true)
 
     const { camera } = useThree()
 
     useEffect(() => {
+        setLoading(true)
         fetch('/api/graph')
             .then(res => res.json())
             .then(initialData => {
@@ -181,6 +183,7 @@ const Graph = forwardRef(({
                 }
             })
             .catch(err => console.error('加载graph.json失败', err))
+            .finally(() => setLoading(false))
     }, [])
 
     useImperativeHandle(ref, () => ({
@@ -189,10 +192,12 @@ const Graph = forwardRef(({
         camera,
         isDragging,
         setData: (newData) => {
+            setLoading(true)
             setData(newData)
             const initPos = calculatePositions(newData)
             const finalPos = applyForces(newData, initPos, 300)
             setPositions(finalPos)
+            setLoading(false)
         },
     }))
 
@@ -219,6 +224,8 @@ const Graph = forwardRef(({
             setPositions(finalPos);
         }
     };
+
+    if (loading) return null
 
     return (
         <group>

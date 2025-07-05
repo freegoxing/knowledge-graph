@@ -33,21 +33,53 @@
 项目采用前后端分离的模式，职责清晰。
 
 ```mermaid
-graph TD
-    subgraph "Browser (Frontend)"
-        A[React App] --> B{Three.js Canvas};
-        C[QueryBox] -- "1. 用户输入查询" --> D[Backend API];
-        D -- "5. 返回图数据" --> A;
-        E[Graph Component] -- "2. 请求初始数据" --> D;
-        A -- "渲染" --> B;
-        F["Search & ContextMenu"] -- "用户交互" --> A;
-    end
+flowchart LR
+  %% === Frontend 主体结构 ===
+  subgraph Frontend [🌐 Frontend 应用层]
+    A[React Application]
+    A --> B[App.jsx]
+    B --> B1[SearchBox.jsx]
+    B --> B2[ContextMenu.jsx]
+    B --> B3[QueryBox.jsx]
+    B --> B4[Graph.jsx]
+    B4 --> C1[DraggableNode.jsx]
+    B4 --> C2[Edge.jsx]
+    B4 --> C3[d3-force - 力导向布局]
+    B4 --> C4[React Three Fiber]
+    C4 --> C5[Three.js]
+    C3 --> C5
+    B --> D[Vite - 构建工具]
+  end
 
-    subgraph "Server (Backend)"
-        D -- "3. 转发请求" --> G[Coze AI API];
-        G -- "4. 返回AI生成的JSON" --> D;
-        H[graph.json] <--> D;
-    end
+  %% === Backend 主体结构 ===
+  subgraph Backend [🖥️ Backend 服务层]
+    E[Node.js Server]
+    E --> F[server.js]
+    F --> G[Express.js]
+    F --> H[graph.json - 知识图谱数据]
+    F --> I[Axios - Coze 客户端]
+    I --> J[Coze 平台]
+    E --> K[fs 文件系统]
+    E --> L[cors 中间件]
+  end
+
+  %% === 数据流关系 ===
+  A -- "fetch('/api/graph')" --> F
+  B3 -- "POST 查询语句" --> F
+  F -- "读写操作" --> H
+  F -- "Axios POST 请求" --> I
+  J -- "返回知识图谱JSON" --> F
+  H -- "JSON响应" --> A
+
+  %% === 样式区 ===
+  style A fill:#e0bbff,stroke:#333,stroke-width:1.5px
+  style B4 fill:#bbddff,stroke:#333,stroke-width:1.5px
+  style C5 fill:#bbf,stroke:#333,stroke-width:1.5px
+  style C3 fill:#c2f0c2,stroke:#333,stroke-width:1.5px
+  style D fill:#fdfd96,stroke:#333,stroke-width:1.5px
+  style E fill:#f9f,stroke:#333,stroke-width:1.5px
+  style H fill:#fdd,stroke:#333,stroke-width:1.5px
+
 ```
 
 1.  **前端 (`/client`)**:
