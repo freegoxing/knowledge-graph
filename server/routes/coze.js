@@ -8,7 +8,7 @@ const BOT_ID = '751xxxx'
 // 处理 Coze 响应格式
 function handleResult(message) {
     try {
-        const content = message.content?.trim()
+        let content = message.content?.trim()
 
         const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
         if (codeBlockMatch) {

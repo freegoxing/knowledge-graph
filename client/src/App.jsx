@@ -213,20 +213,10 @@ export default function App() {
                     if (!graph || !graph.data) return;
 
                     if (data.nodes && data.edges) {
-                        // 1. 合并 nodes，避免重复 id
-                        const existingIds = new Set(graph.data.nodes.map(n => n.id));
-                        const newNodes = data.nodes.filter(n => !existingIds.has(n.id));
-                        graph.data.nodes.push(...newNodes);
+                        // 用新数据完全替换旧数据
+                        graph.setData(data);
 
-                        // 2. 合并 edges
-                        graph.data.edges.push(...data.edges);
-
-                        // 3. 调整 layout 或 layer（可选）
-
-                        // 4. 重新触发渲染
-                        graph.setData && graph.setData({ ...graph.data });
-
-                        // 5. 可选：保存数据
+                        // 可选：保存数据
                         // saveGraphData();
                     }
                 }}
