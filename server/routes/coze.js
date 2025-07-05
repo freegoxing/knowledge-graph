@@ -2,8 +2,8 @@ const express = require('express')
 const router = express.Router()
 const axios = require('axios')
 
-const COZE_TOKEN = 'pat_btK7lS81ZcOiHS3IUzut6vVT7NFgLvt8r1vJZSU266PnqzaMque9o5ZR5lmPUjIr'
-const BOT_ID = '7511694377740402740'
+const COZE_TOKEN = 'pat_xxxx'
+const BOT_ID = '751xxxx'
 
 // 处理 Coze 响应格式
 function handleResult(message) {
