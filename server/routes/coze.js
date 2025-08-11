@@ -1,9 +1,11 @@
+import 'dotenv/config'
+
 const express = require('express')
 const router = express.Router()
 const axios = require('axios')
 
-const COZE_TOKEN = 'pat_xxxx'
-const BOT_ID = '751xxxx'
+const COZE_TOKEN = process.env.COZE_TOKEN
+const BOT_ID = process.env.BOT_ID
 
 // 处理 Coze 响应格式
 function handleResult(message) {
@@ -14,7 +16,7 @@ function handleResult(message) {
         if (codeBlockMatch) {
             content = codeBlockMatch[1];  // 提取中间 JSON 字符串
         }
-        
+
         // 优先尝试作为完整 JSON 对象解析（如 type 为 "answer" 时）
         try {
             const parsed = JSON.parse(content)
@@ -95,21 +97,37 @@ router.post('/graph', async (req, res) => {
         const duration = ((Date.now() - start) / 1000).toFixed(2)
         console.log(`⏱️ Coze 响应时间: ${duration}s`)
 
-        const messages = response.data?.messages || []
-        const extracted = messages.length >= 3 ? handleResult(messages[2]) : null
+        const messages = response.data?.messages || [];
+        let extracted = null;
 
-        // console.log('📩 Coze API 原始返回:', JSON.stringify(response.data, null, 2))
+        if (messages.length >= 3) {
+            try {
+                extracted = handleResult(messages[2]);
+            } catch (err) {
+                console.error('❌ handleResult 处理失败:', err.message);
+            }
+        } else {
+            console.warn('⚠️ Coze 返回的 messages 不够 3 条:', messages);
+        }
+
+        console.log('📩 Coze API 原始返回:', JSON.stringify(response.data, null, 2))
 
         console.log('Coze 返回消息:', messages);
 
         if (extracted) {
-            res.json(extracted)
+            res.json(extracted);
         } else {
-            res.status(500).json({ error: '无有效响应内容' })
+            // 返回一个空图而不是 500
+            res.json({ nodes: [], edges: [] });
         }
     } catch (error) {
-        console.error('❌ Coze 请求失败:', error?.response?.data || error.message)
-        res.status(500).json({ error: '调用 Coze API 失败' })
+        console.error(
+            '❌ Coze 请求失败:',
+            error?.response?.status,
+            error?.response?.data || error.message
+        );
+        // 返回一个空图而不是 500
+        res.json({ nodes: [], edges: [] });
     }
 })
 
