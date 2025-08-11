@@ -124,14 +124,11 @@ npm install
 ### 3. 环境配置
 
 为了使AI生成功能正常工作，你需要在后端配置你的Coze Bot信息。
-
-1.  打开 `server/routes/coze.js` 文件。
-2.  修改以下两个常量为你自己的Bot信息：
-    ```javascript
-    const COZE_TOKEN = 'pat_xxxxxxxx'; // 你的Coze API Token
-    const BOT_ID = '75xxxxxxxxxx';   // 你的Bot ID
-    ```
-    > **安全提示**: 建议使用环境变量 (`process.env`) 来管理敏感的Token信息，而不是硬编码在代码中。
+在项目根目录下名新建`.env`文件
+```dotenv
+COZE_TOKEN='pat_xxxxxxxx'; // 你的Coze API Token
+BOT_ID='xxxxxxxxxxxx';   // 你的Bot ID
+```
 
 ### 4. 运行项目
 
@@ -145,6 +142,35 @@ npm run start-all
 *   后端服务将运行在 `http://localhost:3001`。
 
 现在，你可以在浏览器中打开前端地址，开始探索这个知识图谱应用了！
+
+## 🐳 使用 Docker 运行
+
+如果你安装了 Docker，可以更方便地一键启动整个应用。
+
+### 1. 环境准备
+
+*   确保你的机器上已经安装了 [Docker](https://www.docker.com/) 和 [Docker Compose](https://docs.docker.com/compose/install/)。
+*   按照上面的“环境配置”部分，在项目根目录创建好 `.env` 文件，因为 Docker Compose 会将它自动注入后端服务。
+
+### 2. 构建并启动服务
+
+在项目根目录下，运行以下命令：
+
+```bash
+docker-compose up --build
+```
+
+*   Docker Compose 会自动构建前端和后端的镜像，并启动两个容器。
+*   前端应用将运行在 `http://localhost:5173`。
+*   后端服务将运行在 `http://localhost:3001`。
+
+### 3. 停止服务
+
+要停止所有正在运行的容器，可以在项目根目录下按 `Ctrl + C`，或者在另一个终端中运行：
+
+```bash
+docker-compose down
+```
 
 ## 📜 可用脚本
 
