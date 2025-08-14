@@ -157,12 +157,13 @@ npm run start-all
 在项目根目录下，运行以下命令：
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 *   Docker Compose 会自动构建前端和后端的镜像，并启动两个容器。
 *   前端应用将运行在 `http://localhost:5173`。
 *   后端服务将运行在 `http://localhost:3001`。
+*   如果是中文路径就显示指定名称`docker compose -p zhishitupu up --build`防止解析错误。
 
 ### 3. 停止服务
 
