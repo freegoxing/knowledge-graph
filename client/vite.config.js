@@ -12,4 +12,12 @@ export default defineConfig({
             '@css': path.resolve(__dirname, './src/css'),
         },
     },
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://localhost:3001',
+                changeOrigin: true,
+            }
+        }
+    }
 });
