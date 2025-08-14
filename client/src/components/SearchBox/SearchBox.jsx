@@ -32,7 +32,10 @@ export default function SearchBox({ data, positions, camera, setSearchNodeId }) 
         setInputText(text)
         setSelectedIndex(-1)
 
-        if (!data) return
+        if (!data || !data.nodes) {
+            setSuggestions([])
+            return
+        }
 
         const matched = data.nodes
             .filter(n => n.label.toLowerCase().includes(text.toLowerCase()))
@@ -44,11 +47,13 @@ export default function SearchBox({ data, positions, camera, setSearchNodeId }) 
     const handleKeyDown = (e) => {
         if (e.key === 'ArrowDown') {
             e.preventDefault()
+            if (suggestions.length === 0) return;
             const nextIndex = (selectedIndex + 1) % suggestions.length
             setSelectedIndex(nextIndex)
             setInputText(suggestions[nextIndex].label)
         } else if (e.key === 'ArrowUp') {
             e.preventDefault()
+            if (suggestions.length === 0) return;
             const nextIndex = (selectedIndex - 1 + suggestions.length) % suggestions.length
             setSelectedIndex(nextIndex)
             setInputText(suggestions[nextIndex].label)
@@ -56,6 +61,12 @@ export default function SearchBox({ data, positions, camera, setSearchNodeId }) 
             e.preventDefault()
             if (selectedIndex >= 0) {
                 handleSearch(suggestions[selectedIndex].label)
+                setSuggestions([])
+            } else if (suggestions.length > 0) {
+                const topSuggestion = suggestions[0]
+                handleSearch(topSuggestion.label)
+                setInputText(topSuggestion.label)
+                setSuggestions([])
             } else {
                 handleSearch()
             }
@@ -81,6 +92,7 @@ export default function SearchBox({ data, positions, camera, setSearchNodeId }) 
                             onClick={() => {
                                 handleSearch(node.label)
                                 setInputText(node.label)
+                                setSuggestions([])
                             }}
                         >
                             {node.label}
