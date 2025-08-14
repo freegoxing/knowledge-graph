@@ -161,7 +161,8 @@ const Graph = forwardRef(({
                               highlightedNodeId,
                               onRightClick,
                               onDragStateChange,
-                              query
+                              query,
+                              onGraphReady
                           }, ref) => {
     const [data, setData] = useState({ nodes: [], edges: [] })
     const [positions, setPositions] = useState({})
@@ -180,11 +181,14 @@ const Graph = forwardRef(({
                     const initPos = calculatePositions(initialData)
                     const finalPos = applyForces(initialData, initPos, 300)
                     setPositions(finalPos)
+                    if (onGraphReady) {
+                        onGraphReady(initialData)
+                    }
                 }
             })
             .catch(err => console.error('加载graph.json失败', err))
             .finally(() => setLoading(false))
-    }, [])
+    }, [onGraphReady])
 
     useImperativeHandle(ref, () => ({
         data,

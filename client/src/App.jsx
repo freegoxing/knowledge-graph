@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import Graph from '@/Graph'
@@ -9,20 +9,22 @@ import QueryBox from "@components/QueryBox/QueryBox";
 export default function App() {
     const [searchNodeId, setSearchNodeId] = useState(null)
     const [graphReady, setGraphReady] = useState(false)
+    const [graphData, setGraphData] = useState(null)
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, nodeId: null })
     const [isDragging, setIsDragging] = useState(false)
     const [query, setQuery] = useState('')
     const graphRef = useRef()
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (graphRef.current?.data && graphRef.current?.positions && graphRef.current?.camera) {
-                setGraphReady(true)
-                clearInterval(interval)
-            }
-        }, 100)
-        return () => clearInterval(interval)
-    }, [])
+    // Callback for Graph component to call when it's ready
+    const handleGraphReady = useCallback((data) => {
+        setGraphData(data);
+        setGraphReady(true);
+    }, []); // Use useCallback to prevent re-creation of the function
+
+    function updateGraphData(newData) {
+        graphRef.current?.setData?.(newData)
+        setGraphData(newData)
+    }
 
     function handleDragStateChange(dragging) {
         setIsDragging(dragging)
@@ -76,8 +78,7 @@ export default function App() {
                 graph.data.nodes.push(newNode)
                 graph.data.edges.push({ source: nodeId, target: newId })
 
-                // await saveGraphData()
-                graph.setData && graph.setData({ ...graph.data })
+                updateGraphData({ ...graph.data })
                 break
             }
 
@@ -108,8 +109,7 @@ export default function App() {
 
                 graph.data.nodes.push(newNode)
 
-                // await saveGraphData()
-                graph.setData && graph.setData({ ...graph.data })
+                updateGraphData({ ...graph.data })
                 break
             }
 
@@ -140,8 +140,7 @@ export default function App() {
 
                 graph.data.nodes.push(newNode)
 
-                // await saveGraphData()
-                graph.setData && graph.setData({ ...graph.data })
+                updateGraphData({ ...graph.data })
                 break
             }
 
@@ -152,8 +151,7 @@ export default function App() {
                     if (newLabel !== null && newLabel.trim() !== '') node.label = newLabel.trim()
                 }
 
-                // await saveGraphData()
-                graph.setData && graph.setData({ ...graph.data })
+                updateGraphData({ ...graph.data })
                 break
             }
 
@@ -183,8 +181,7 @@ export default function App() {
                     })
                 }
 
-                // await saveGraphData()
-                graph.setData && graph.setData({ ...graph.data })
+                updateGraphData({ ...graph.data })
                 break
             }
 
@@ -210,21 +207,17 @@ export default function App() {
                 onSubmit={setQuery}
                 onResult={(data) => {
                     const graph = graphRef.current;
-                    if (!graph || !graph.data) return;
+                    if (!graph) return;
 
                     if (data.nodes && data.edges) {
-                        // 用新数据完全替换旧数据
-                        graph.setData(data);
-
-                        // 可选：保存数据
-                        // saveGraphData();
+                        updateGraphData(data)
                     }
                 }}
             />
 
             {graphReady && (
                 <SearchBox
-                    data={graphRef.current?.data}
+                    data={graphData}
                     positions={graphRef.current?.positions}
                     camera={graphRef.current?.camera}
                     setSearchNodeId={setSearchNodeId}
@@ -241,6 +234,7 @@ export default function App() {
                     highlightedNodeId={searchNodeId}
                     onRightClick={handleRightClick}
                     onDragStateChange={handleDragStateChange}
+                    onGraphReady={handleGraphReady}
                 />
             </Canvas>
 
