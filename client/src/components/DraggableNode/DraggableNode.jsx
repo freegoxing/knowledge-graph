@@ -1,11 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react'
-import { useThree } from '@react-three/fiber'
-import { useFrame } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
+import React, {useRef, useState, useEffect} from 'react'
+import {useThree} from '@react-three/fiber'
+import {useFrame} from '@react-three/fiber'
+import {Html} from '@react-three/drei'
 import styles from './DraggableNode.module.css'
 import * as THREE from 'three'
 
-export default function DraggableNode({                                          id,
+export default function DraggableNode({
+                                          id,
                                           position,
                                           onDrag,
                                           onRightClick,
@@ -16,7 +17,7 @@ export default function DraggableNode({                                         
                                           degree = 0
                                       }) {
     const meshRef = useRef()
-    const { camera } = useThree()
+    const {camera} = useThree()
     const [dragging, setDragging] = useState(false)
     const offset = useRef(new THREE.Vector3())
     const plane = useRef(new THREE.Plane())
@@ -96,6 +97,7 @@ export default function DraggableNode({                                         
         function onPointerUpGlobal(event) {
             pointerUp(event)
         }
+
         window.addEventListener('pointerup', onPointerUpGlobal)
         window.addEventListener('pointercancel', onPointerUpGlobal)
 
@@ -120,7 +122,7 @@ export default function DraggableNode({                                         
             castShadow
             receiveShadow
         >
-            <sphereGeometry args={[radius, 32, 32]} />
+            <sphereGeometry args={[radius, 32, 32]}/>
             <meshStandardMaterial
                 color={nodeColor}
                 transparent={true}
@@ -133,7 +135,7 @@ export default function DraggableNode({                                         
                 className={styles.graphLabel}
                 occlude={false}
             >
-                <div style={{ fontSize: `${labelFontSize}px` }}>
+                <div style={{fontSize: `${labelFontSize}px`}}>
                     {label}
                 </div>
             </Html>
