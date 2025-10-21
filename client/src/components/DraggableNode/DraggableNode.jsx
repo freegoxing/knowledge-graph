@@ -1,9 +1,45 @@
-import React, {useRef, useState, useEffect} from 'react'
-import {useThree} from '@react-three/fiber'
-import {useFrame} from '@react-three/fiber'
-import {Html} from '@react-three/drei'
-import styles from './DraggableNode.module.css'
+import React, { useRef, useState, useEffect } from 'react'
+import { useThree, useFrame, extend, useLoader } from '@react-three/fiber'
+import { Html, shaderMaterial } from '@react-three/drei'
 import * as THREE from 'three'
+import styles from './DraggableNode.module.css'
+
+const GlowMaterial = shaderMaterial(
+    {
+        glowColor: new THREE.Color(0, 0, 0),
+        viewVector: new THREE.Vector3(0, 0, 0),
+        power: 2.5,
+        intensity: 1.5,
+    },
+    // Vertex Shader
+    `
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    void main() {
+        vNormal = normalize(normalMatrix * normal);
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+    `,
+    // Fragment Shader
+    `
+    uniform vec3 glowColor;
+    uniform vec3 viewVector;
+    uniform float power;
+    uniform float intensity;
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+
+    void main() {
+        vec3 viewDir = normalize(viewVector - vPosition);
+        float fresnel = pow(1.0 - abs(dot(vNormal, viewDir)), power);
+        vec3 finalColor = glowColor * fresnel * intensity;
+        gl_FragColor = vec4(finalColor, fresnel * intensity);
+    }
+    `
+);
+
+extend({GlowMaterial});
 
 export default function DraggableNode({
                                           id,
@@ -80,17 +116,33 @@ export default function DraggableNode({
     const normalizedDegree = Math.min(degree / maxDegree, 1);
 
     const radius = 0.2 + normalizedDegree * 1.8;
-    const colorLightness = 70 - normalizedDegree * 50; // Lightness from 70% down to 20%
-    const nodeColor = highlighted ? 'hotpink' : `hsl(240, 100%, ${colorLightness}%)`;
     const labelFontSize = 14 + normalizedDegree * 36;
     const labelYOffset = radius + 0.2;
 
+    const normalColor = new THREE.Color('#00aaff');
+    const highlightedColor = new THREE.Color('#00ffaa');
+    const currentColor = useRef(normalColor.clone());
 
-    useFrame(() => {
+    useFrame((state, delta) => {
         if (meshRef.current) {
-            meshRef.current.rotation.y += 0.005
+            meshRef.current.rotation.y += 0.005;
         }
-    })
+
+        const targetColor = highlighted ? highlightedColor : normalColor;
+        currentColor.current.lerp(targetColor, delta * 5); // delta * 5 控制过渡速度
+
+        // 更新材质颜色
+        if (meshRef.current) {
+            const coreMaterial = meshRef.current.children[0].material;
+            const glowMaterial = meshRef.current.children[1].material;
+
+            coreMaterial.color = currentColor.current;
+            coreMaterial.emissive = currentColor.current;
+
+            glowMaterial.uniforms.glowColor.value = currentColor.current;
+            glowMaterial.uniforms.viewVector.value = camera.position;
+        }
+    });
 
     // 组件内
     useEffect(() => {
@@ -108,26 +160,28 @@ export default function DraggableNode({
     }, [dragging, onDragEnd])
 
     return (
-        <mesh
-            ref={meshRef}
-            position={position}
-            onPointerDown={pointerDown}
-            onPointerMove={pointerMove}
-            onPointerUp={pointerUp}
-            onPointerMissed={() => {
-                setDragging(false)
-                if (onDragEnd) onDragEnd()
-            }}
-            onContextMenu={handleContextMenu}
-            castShadow
-            receiveShadow
-        >
-            <sphereGeometry args={[radius, 32, 32]}/>
-            <meshStandardMaterial
-                color={nodeColor}
-                transparent={true}
-                opacity={highlighted ? 1 : 0.75}
-            />
+        <group ref={meshRef} position={position}>
+            <mesh
+                onPointerDown={pointerDown}
+                onPointerMove={pointerMove}
+                onPointerUp={pointerUp}
+                onPointerMissed={() => {
+                    setDragging(false)
+                    if (onDragEnd) onDragEnd()
+                }}
+                onContextMenu={handleContextMenu}
+                castShadow
+                receiveShadow
+            >
+                {/* Inner Core */}
+                <sphereGeometry args={[radius * 0.6, 32, 32]}/>
+                <meshStandardMaterial emissiveIntensity={0.5} toneMapped={false}/>
+            </mesh>
+            {/* Outer Glow */}
+            <mesh>
+                <sphereGeometry args={[radius, 32, 32]}/>
+                <glowMaterial transparent={true} depthWrite={false} blending={THREE.AdditiveBlending}/>
+            </mesh>
 
             <Html
                 position={[0, labelYOffset, 0]}
@@ -139,6 +193,6 @@ export default function DraggableNode({
                     {label}
                 </div>
             </Html>
-        </mesh>
+        </group>
     )
 }

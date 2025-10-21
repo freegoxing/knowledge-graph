@@ -12,16 +12,17 @@ export default function Edge({ start, end, sourceDegree = 1, targetDegree = 1 })
     const maxDegree = 50; // 与DraggableNode中一致
     const normalizedDegree = Math.min(avgDegree / maxDegree, 1);
 
-    const lineWidth = 1 + normalizedDegree * 9; // 宽度从1到10
-    const lineLightness = 80 - normalizedDegree * 60; // 亮度从80%到20%
-    const lineColor = `hsl(0, 0%, ${lineLightness}%)`;
 
+    const lineWidth = 1 + normalizedDegree * 4; // 宽度从1到5
+    const lineOpacity = 0.2 + normalizedDegree * 0.8; // 透明度从0.2到1.0
 
     return (
         <Line
             points={points}
-            color={lineColor}
+            color="#00aaff" // 使用主题色
             lineWidth={lineWidth}
+            transparent
+            opacity={lineOpacity}
         />
     )
 }

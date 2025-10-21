@@ -1,43 +1,69 @@
 .queryBox {
     margin: 1rem;
     padding: 1rem;
-    border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #fafafa;
+    box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+    background-color: rgba(26, 26, 26, 0.8);
+    border: 1px solid var(--primary-color);
 }
 
 .queryBox input {
-    padding: 0.5rem;
-    width: 60%;
-    margin-right: 0.5rem;
-    border: 1px solid #ccc;
+    flex-grow: 1;
+    padding: 0.75rem;
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
     border-radius: 4px;
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 1rem;
+    box-shadow: 0 0 5px rgba(0, 170, 255, 0.5) inset;
+    transition: all 0.3s ease;
+}
+
+.queryBox input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 10px rgba(0, 255, 170, 0.7) inset, 0 0 10px rgba(0, 255, 170, 0.5);
 }
 
 .queryBox button {
-    padding: 0.5rem 1rem;
-    border: none;
-    background-color: #0077cc;
-    color: white;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--primary-color);
+    background-color: transparent;
+    color: var(--primary-color);
     border-radius: 4px;
     cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.queryBox button:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    box-shadow: 0 0 15px var(--primary-color);
 }
 
 .queryBox button:disabled {
-    background-color: #999;
+    border-color: #555;
+    color: #555;
     cursor: not-allowed;
 }
 
 .response {
     margin-top: 1rem;
     padding: 1rem;
-    background-color: #eee;
+    background-color: rgba(26, 26, 26, 0.8);
     border-radius: 4px;
+    border: 1px solid var(--secondary-color);
     white-space: pre-wrap;
     word-break: break-all;
+    box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
 }
 
 .error {
-    color: red;
+    color: #ff4d4d;
     margin-top: 1rem;
+    text-shadow: 0 0 5px rgba(255, 77, 77, 0.7);
 }
