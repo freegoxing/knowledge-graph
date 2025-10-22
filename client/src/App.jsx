@@ -5,6 +5,7 @@ import Graph from '@/Graph'
 import SearchBox from '@components/SearchBox/SearchBox'
 import ContextMenu from '@components/ContextMenu/ContextMenu'
 import QueryBox from "@components/QueryBox/QueryBox";
+import InputModal from "@components/InputModal/InputModal";
 
 export default function App() {
     const [searchNodeId, setSearchNodeId] = useState(null)
@@ -13,6 +14,7 @@ export default function App() {
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, nodeId: null })
     const [isDragging, setIsDragging] = useState(false)
     const [query, setQuery] = useState('')
+    const [modal, setModal] = useState({ isOpen: false, title: '', defaultValue: '', onConfirm: () => {} });
     const graphRef = useRef()
 
     // Callback for Graph component to call when it's ready
@@ -66,19 +68,24 @@ export default function App() {
                 const parentNode = graph.data.nodes.find(n => n.id === nodeId)
                 if (!parentNode) return
 
-                const nodeName = prompt('请输入新节点名字', '')
-                if (!nodeName || !nodeName.trim()) return
+                // Replaced prompt with modal
+                setModal({
+                    isOpen: true,
+                    title: '请输入新节点名字',
+                    onConfirm: (nodeName) => {
+                        const newId = `node-${Date.now()}`
+                        const newNode = {
+                            id: newId,
+                            label: nodeName,
+                            layer: parentNode.layer
+                        }
+                        graph.data.nodes.push(newNode)
+                        graph.data.edges.push({ source: nodeId, target: newId })
 
-                const newId = `node-${Date.now()}`
-                const newNode = {
-                    id: newId,
-                    label: nodeName,
-                    layer: parentNode.layer
-                }
-                graph.data.nodes.push(newNode)
-                graph.data.edges.push({ source: nodeId, target: newId })
-
-                updateGraphData({ ...graph.data })
+                        updateGraphData({ ...graph.data })
+                        setModal({ isOpen: false });
+                    }
+                });
                 break
             }
 
@@ -86,30 +93,35 @@ export default function App() {
                 const childNode = graph.data.nodes.find(n => n.id === nodeId)
                 if (!childNode) return
 
-                const nodeName = prompt('请输入父节点名字', '')
-                if (!nodeName || !nodeName.trim()) return
+                // Replaced prompt with modal
+                setModal({
+                    isOpen: true,
+                    title: '请输入父节点名字',
+                    onConfirm: (nodeName) => {
+                        const newId = `node-${Date.now()}`
 
-                const newId = `node-${Date.now()}`
+                        const originalLayer = childNode.layer
+                        const newLayer = Math.max(0, originalLayer - 1) + 1
 
-                const originalLayer = childNode.layer
-                const newLayer = Math.max(0, originalLayer - 1) + 1
+                        // 让所有比这个小的层都 +1
+                        graph.data.nodes.forEach(n => {
+                            if (n.layer >= newLayer) {
+                                n.layer += 1
+                            }
+                        })
 
-                // 让所有比这个小的层都 +1
-                graph.data.nodes.forEach(n => {
-                    if (n.layer >= newLayer) {
-                        n.layer += 1
+                        const newNode = {
+                            id: newId,
+                            label: nodeName.trim(),
+                            layer: newLayer
+                        }
+
+                        graph.data.nodes.push(newNode)
+
+                        updateGraphData({ ...graph.data })
+                        setModal({ isOpen: false });
                     }
-                })
-
-                const newNode = {
-                    id: newId,
-                    label: nodeName.trim(),
-                    layer: newLayer
-                }
-
-                graph.data.nodes.push(newNode)
-
-                updateGraphData({ ...graph.data })
+                });
                 break
             }
 
@@ -117,41 +129,53 @@ export default function App() {
                 const parentNode = graph.data.nodes.find(n => n.id === nodeId)
                 if (!parentNode) return
 
-                const nodeName = prompt('请输入子节点名字', '')
-                if (!nodeName || !nodeName.trim()) return
+                // Replaced prompt with modal
+                setModal({
+                    isOpen: true,
+                    title: '请输入子节点名字',
+                    onConfirm: (nodeName) => {
+                        const newId = `node-${Date.now()}`
 
-                const newId = `node-${Date.now()}`
+                        const originalLayer = parentNode.layer
+                        const newLayer = originalLayer + 1
 
-                const originalLayer = parentNode.layer
-                const newLayer = originalLayer + 1
+                        // 所有层 >= newLayer 的节点层数 +1，腾出新节点层位置
+                        graph.data.nodes.forEach(n => {
+                            if (n.layer >= newLayer) {
+                                n.layer += 1
+                            }
+                        })
 
-                // 所有层 >= newLayer 的节点层数 +1，腾出新节点层位置
-                graph.data.nodes.forEach(n => {
-                    if (n.layer >= newLayer) {
-                        n.layer += 1
+                        const newNode = {
+                            id: newId,
+                            label: nodeName.trim(),
+                            layer: newLayer
+                        }
+
+                        graph.data.nodes.push(newNode)
+
+                        updateGraphData({ ...graph.data })
+                        setModal({ isOpen: false });
                     }
-                })
-
-                const newNode = {
-                    id: newId,
-                    label: nodeName.trim(),
-                    layer: newLayer
-                }
-
-                graph.data.nodes.push(newNode)
-
-                updateGraphData({ ...graph.data })
+                });
                 break
             }
 
             case 'replace': {
                 const node = graph.data.nodes.find(n => n.id === nodeId)
                 if (node) {
-                    const newLabel = prompt('请输入新的标签', node.label)
-                    if (newLabel !== null && newLabel.trim() !== '') node.label = newLabel.trim()
+                    // Replaced prompt with modal
+                    setModal({
+                        isOpen: true,
+                        title: '请输入新的标签',
+                        defaultValue: node.label,
+                        onConfirm: (newLabel) => {
+                            if (newLabel.trim() !== '') node.label = newLabel.trim()
+                            updateGraphData({ ...graph.data })
+                            setModal({ isOpen: false });
+                        }
+                    });
                 }
-
-                updateGraphData({ ...graph.data })
                 break
             }
 
@@ -235,6 +259,7 @@ export default function App() {
                     onRightClick={handleRightClick}
                     onDragStateChange={handleDragStateChange}
                     onGraphReady={handleGraphReady}
+                    isModalOpen={modal.isOpen}
                 />
             </Canvas>
 
@@ -242,6 +267,13 @@ export default function App() {
                 {...contextMenu}
                 onClose={closeMenu}
                 onAction={handleAction}
+            />
+            <InputModal
+                isOpen={modal.isOpen}
+                onClose={() => setModal({ isOpen: false })}
+                onSubmit={modal.onConfirm}
+                title={modal.title}
+                defaultValue={modal.defaultValue}
             />
         </>
     )

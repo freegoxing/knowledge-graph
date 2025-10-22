@@ -9,6 +9,7 @@
     white-space: nowrap;
     border-radius: 4px;
     text-shadow: 0 0 5px var(--primary-color);
+    z-index: 1;
 }
 
 .contextMenu {
@@ -40,4 +41,5 @@
 .contextMenu button:hover {
     background-color: var(--primary-color);
     color: var(--background-color);
+    box-shadow: 0 0 10px var(--primary-color);
 }

@@ -51,7 +51,8 @@ export default function DraggableNode({
                                           label,
                                           highlighted,
                                           degree = 0
-                                      }) {
+
+}) {
     const meshRef = useRef()
     const {camera} = useThree()
     const [dragging, setDragging] = useState(false)
@@ -188,6 +189,7 @@ export default function DraggableNode({
                 center
                 className={styles.graphLabel}
                 occlude={false}
+                zIndexRange={[0, 0]}
             >
                 <div style={{fontSize: `${labelFontSize}px`}}>
                     {label}
