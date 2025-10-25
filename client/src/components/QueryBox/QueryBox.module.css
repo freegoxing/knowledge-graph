@@ -1,37 +1,38 @@
 .queryBox {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
     margin: 1rem;
     padding: 1rem;
     border-radius: 8px;
-    background-color: #fafafa;
-    box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
-    background-color: rgba(26, 26, 26, 0.8);
-    border: 1px solid var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
 }
 
 .queryBox input {
     flex-grow: 1;
     padding: 0.75rem;
-    background-color: transparent;
-    border: 1px solid var(--primary-color);
+    background-color: #fff;
+    border: 1px solid #ccc;
     border-radius: 4px;
     color: var(--text-color);
     font-family: inherit;
     font-size: 1rem;
-    box-shadow: 0 0 5px rgba(0, 170, 255, 0.5) inset;
     transition: all 0.3s ease;
 }
 
 .queryBox input:focus {
     outline: none;
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 10px rgba(0, 255, 170, 0.7) inset, 0 0 10px rgba(0, 255, 170, 0.5);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 .queryBox button {
     padding: 0.75rem 1.5rem;
     border: 1px solid var(--primary-color);
-    background-color: transparent;
-    color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: #fff;
     border-radius: 4px;
     cursor: pointer;
     font-family: inherit;
@@ -40,30 +41,28 @@
 }
 
 .queryBox button:hover:not(:disabled) {
-    background-color: var(--primary-color);
-    color: var(--background-color);
-    box-shadow: 0 0 15px var(--primary-color);
+    background-color: #0056b3;
+    border-color: #0056b3;
 }
 
 .queryBox button:disabled {
-    border-color: #555;
-    color: #555;
+    border-color: #ddd;
+    color: #aaa;
+    background-color: #f5f5f5;
     cursor: not-allowed;
 }
 
 .response {
     margin-top: 1rem;
     padding: 1rem;
-    background-color: rgba(26, 26, 26, 0.8);
+    background-color: #f8f9fa;
     border-radius: 4px;
-    border: 1px solid var(--secondary-color);
+    border: 1px solid #dee2e6;
     white-space: pre-wrap;
     word-break: break-all;
-    box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
 }
 
 .error {
-    color: #ff4d4d;
+    color: #dc3545;
     margin-top: 1rem;
-    text-shadow: 0 0 5px rgba(255, 77, 77, 0.7);
 }

@@ -1,14 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;700&display=swap');
 
 :root {
-  --primary-color: #00aaff;
-  --secondary-color: #00ffaa;
-  --background-color: #1a1a1a;
-  --node-color: #2a2a2a;
-  --edge-color: #00aaff;
-  --text-color: #f0f0f0;
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-color: #f0f0f0;
+    --node-color: #ffffff;
+    --edge-color: #007bff;
+    --text-color: #333333;
 }
-
 html, body, #root, canvas {
     width: 100%;
     height: 100%;
